@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BrewExplorer</string>
+    <string name="label_retry">Erneut Versuchen</string>
+    <string name="error_feed">Leider ist etwas schiefgelaufen...\n</string>
+    <string name="title_overview_screen">Meine Bierliste</string>
+    <string name="empty_feed">Keine Ergebnisse</string>
+    <string name="talkback_contentdescr_user_picture">Bier Foto\n</string>
+</resources>
