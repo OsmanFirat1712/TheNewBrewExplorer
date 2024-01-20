@@ -19,10 +19,7 @@ class DetailScreenViewModel(val forum:MainForm,    private val savedStateHandle:
     }
 }
 
-data class State(
-    val beerItem: Beer? = null,
-    val ScreenState:
-    )
+
 
 
 enum class ScreenState {

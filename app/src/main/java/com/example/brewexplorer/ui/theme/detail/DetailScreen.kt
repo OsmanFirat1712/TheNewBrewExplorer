@@ -71,6 +71,7 @@ import com.example.brewexplorer.data.remote.model.DataState
 import com.example.brewexplorer.ui.theme.base.ContentEmptyScreen
 import com.example.brewexplorer.ui.theme.base.ContentErrorScreen
 import com.example.brewexplorer.ui.theme.base.ContentLoadingScreen
+import com.example.brewexplorer.ui.theme.destinations.DetailScreenDestination
 import com.example.brewexplorer.ui.theme.overview.BeerList
 import com.example.brewexplorer.ui.theme.overview.BeerListItem
 import com.ramcosta.composedestinations.annotation.Destination
@@ -79,6 +80,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState")
+@Destination
 @Composable
 fun DetailScreen(beer: Beer) {
 
