@@ -6,7 +6,7 @@ import com.example.brewexplorer.data.BeerDataSource
 import com.example.brewexplorer.data.remote.model.Beer
 import com.example.brewexplorer.data.remote.model.DataState
 import com.example.brewexplorer.data.remote.model.RepositoryResponse
-import com.example.brewexplorer.ui.theme.translater.Translator
+import com.example.brewexplorer.data.translator.Translator
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

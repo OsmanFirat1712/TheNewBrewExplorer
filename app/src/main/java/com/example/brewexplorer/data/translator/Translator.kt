@@ -1,4 +1,4 @@
-package com.example.brewexplorer.ui.theme.translater
+package com.example.brewexplorer.data.translator
 
 import android.util.Log
 import com.google.mlkit.common.model.DownloadConditions
