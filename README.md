@@ -13,5 +13,5 @@ Our app is built using cutting-edge technologies and frameworks to ensure a smoo
 - ramcosta Navigation: Utilized for seamless navigation in the app, providing an intuitive and responsive user flow.
 - Koin: For efficient Dependency Injection (DI), making our app more modular and testable.
 - StateFlows: For robust state management, ensuring a responsive and stable user experience.
-- ML Kit for Firebase: Integrated for advanced machine learning capabilities, enhancing the app's functionality.
+- ML Kit for Translation: Integrated specifically for translation features, enabling easy and accurate language conversion to enhance user accessibility and app functionality.
 - Custom API Wrapper: Implemented for streamlined error handling, ensuring a smooth operation even when unexpected issues arise.
