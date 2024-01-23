@@ -52,12 +52,8 @@ fun OverviewScreen(
     viewModel: OverviewViewModel = koinViewModel()
 ) {
 
-
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val viewModelState by viewModel.state.collectAsState()
-
-
-    val lifecycleOwner = LocalLifecycleOwner.current
 
     Scaffold(
         modifier = Modifier.nestedScroll(connection = scrollBehavior.nestedScrollConnection),
@@ -76,22 +72,19 @@ fun OverviewScreen(
             modifier = Modifier.padding(it)
         ) {
             when (viewModelState.dataState) {
-                DataState.ERROR -> ContentErrorScreen { }
+                DataState.ERROR -> ContentErrorScreen { viewModel.loadBeers() }
                 DataState.LOADING -> ContentLoadingScreen()
-                DataState.SUCCESS -> BeerList(items = viewModelState.beerList) { beer:Beer ->
+                DataState.SUCCESS -> BeerList(items = viewModelState.beerList) { beer: Beer ->
                     navigator.navigate(DetailScreenDestination(beer))
                 }
-
                 DataState.EMPTY -> ContentEmptyScreen(
                     R.string.empty_feed
                 )
-
                 DataState.NONE -> {}
             }
         }
     }
 }
-
 
 @Composable
 fun BeerList(
@@ -105,9 +98,9 @@ fun BeerList(
     ) {
         items.forEach {
             item {
-                BeerListItem(name = it.name, image = it.imageUrl, tagline = it.tagline, beer = it)
+                BeerListItem(beer = it)
 
-                { beer:Beer ->
+                { beer: Beer ->
                     onClick(beer)
                 }
             }
@@ -115,13 +108,9 @@ fun BeerList(
     }
 }
 
-
 @Composable
 fun BeerListItem(
-    name: String,
-    image: String,
     beer: Beer,
-    tagline: String,
     onClick: (Beer) -> Unit,
 ) {
     Card(
@@ -129,7 +118,7 @@ fun BeerListItem(
             .fillMaxWidth()
             .padding(5.dp)
             .clickable {
-                    onClick(beer)
+                onClick(beer)
             },
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
@@ -145,25 +134,22 @@ fun BeerListItem(
             AsyncImage(
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(CircleShape)
-                    ,
+                    .clip(CircleShape),
                 // for Accessibility purposes
                 contentDescription = stringResource(R.string.talkback_contentdescr_user_picture),
                 contentScale = ContentScale.Fit,
-                model = image
+                model = beer.imageUrl
             )
             Column {
                 Text(
-                    text = name,
+                    text = beer.name,
                     modifier = Modifier
                         .padding(
                             5.dp
                         )
-
                 )
-
                 Text(
-                    text = tagline,
+                    text = beer.tagline,
                     modifier = Modifier
                         .padding(
                             5.dp

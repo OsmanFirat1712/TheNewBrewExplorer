@@ -6,10 +6,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface BeerListApi {
-
     @GET("beers")
     suspend fun getBeers(): List<Beer>
-
-    @GET("beers/{ids}")
-    suspend fun getBeerById(@Path("ids") id:Int): List<Beer>
 }

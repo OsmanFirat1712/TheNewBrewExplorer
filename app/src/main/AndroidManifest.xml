@@ -19,7 +19,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.BrewExplorer">
+            android:windowSoftInputMode="adjustResize"
+        android:theme="@style/Theme.BrewExplorer">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

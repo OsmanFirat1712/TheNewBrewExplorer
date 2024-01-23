@@ -39,7 +39,5 @@ fun MyTopAppBar(title: String, navigationIcon: Action, actions: List<Action> = e
                     )
                 }
             }
-        },
-
-        )
+        },)
 }

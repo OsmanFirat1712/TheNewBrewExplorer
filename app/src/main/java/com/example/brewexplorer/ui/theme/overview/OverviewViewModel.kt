@@ -7,185 +7,105 @@ import com.example.brewexplorer.data.remote.model.Beer
 import com.example.brewexplorer.data.remote.model.DataState
 import com.example.brewexplorer.data.remote.model.RepositoryResponse
 import com.example.brewexplorer.ui.theme.translater.Translator
-import com.example.brewexplorer.ui.theme.translater.Transle
-import com.example.brewexplorer.ui.theme.translater.test
-import com.example.brewexplorer.ui.theme.translater.trans
-import com.google.mlkit.common.model.DownloadConditions
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.TranslatorOptions
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+/**
+ * ViewModel for the overview screen, managing the state and data for a list of beers.
+ *
+ * @property dataSource Source of beer data.
+ */
 class OverviewViewModel(val dataSource: BeerDataSource): ViewModel() {
-    val translateQueue = MutableSharedFlow<String>(replay = 1)
 
     private val _state = MutableStateFlow(State())
     val state = _state.asStateFlow()
-    var transled = "haha"
-    val flow = Translator.getTranslater (_state.value.translated ).onEach {
-        transled = it
-        println("testmus $it")
-    }
-    val translate = callbackFlow {
+    private var malts: List<String> = emptyList()
+    private var hops: List<String> = emptyList()
 
-        val options = TranslatorOptions.Builder()
-            .setSourceLanguage(TranslateLanguage.ENGLISH)
-            .setTargetLanguage(TranslateLanguage.GERMAN)
-            .build()
-
-        val englishGermanTranslator = Translation.getClient(options)
-
-        val conditions = DownloadConditions.Builder()
-            .requireWifi()
-            .build()
-
-        englishGermanTranslator.downloadModelIfNeeded()
-            .addOnSuccessListener {
-                // Model downloaded successfully.
-            }
-            .addOnFailureListener { exception ->
-                // Error handling.
-                close(exception) // Schließt den Flow mit einem Fehler.
-            }
-
-        englishGermanTranslator.translate(_state.value.translated)
-            .addOnSuccessListener { translatedText ->
-                trySend(translatedText) // Sendet das übersetzte Ergebnis.
-            }
-            .addOnFailureListener { exception ->
-                // Error handling.
-                close(exception) // Schließt den Flow mit einem Fehler.
-            }
-
-        awaitClose {
-            englishGermanTranslator.close() // Ressourcen freigeben.
-        }
-
-    }
-
-
+    /**
+     * Represents the state of the overview screen.
+     *
+     * @property beerList The list of beers to display.
+     * @property dataState The current state of data (loading, success, error).
+     */
     data class State(
         val beerList: List<Beer> = emptyList(),
         val dataState: DataState = DataState.NONE,
-        var translated:String = "",
-        val test:String = "",
-        val beer:Beer? = null
     )
 
+    /**
+     * Initialization block for the ViewModel.
+     * Retrieves a list of beers from the data source and updates the state accordingly.
+     */
     init {
+        loadBeers()
+    }
 
-        viewModelScope.launch() {
-
+    fun loadBeers() {
+        viewModelScope.launch {
             _state.update { it.copy(dataState = DataState.LOADING) }
             dataSource.getBeerList().let { response ->
                 when (response) {
                     is RepositoryResponse.Error -> _state.update { it.copy(dataState = DataState.ERROR) }
                     is RepositoryResponse.Success -> _state.update {
-
-                        when (response.data.isNotEmpty()) {
-                            true -> it.copy(
-                                beerList = response.data,
-                                dataState = DataState.SUCCESS,
-                            )
-
-                            false -> it.copy(
-                                dataState = DataState.EMPTY
-                            )
+                        val updatedBeers = response.data.map { beer ->
+                            translateBeerData(beer)
                         }
+                        it.copy(beerList = updatedBeers, dataState = DataState.SUCCESS)
                     }
                 }
             }
-
-
-            state.value.beerList.forEach { beer ->
-                Translator.getTranslater(beer.tagline).onEach { translatedText ->
-                        val updatedBeerList = state.value.beerList.map { currentBeer ->
-                            if (currentBeer.id == beer.id) {
-                                currentBeer.copy(tagline = translatedText)
-                            } else {
-                                currentBeer
-                            }
-                        }
-                        _state.emit(state.value.copy(beerList = updatedBeerList, dataState = DataState.SUCCESS))
-
-                }.launchIn(this)
-            }
-        }
-
-    }
-
-    private fun getTranslatedText(beerList: List<Beer>){
-    viewModelScope.launch {
-
-        state.value.beerList.forEach { beer ->
-            Translator.getTranslater(beer.tagline).onEach { translatedText ->
-                viewModelScope.launch {
-                    val updatedBeerList = state.value.beerList.map { currentBeer ->
-                        if (currentBeer.id == beer.id) {
-                            currentBeer.copy(tagline = translatedText)
-                        } else {
-                            currentBeer
-                        }
-                    }
-                    _state.emit(state.value.copy(beerList = updatedBeerList, dataState = DataState.SUCCESS))
-                }
-            }.launchIn(this)
         }
     }
+
+
+    /**
+     * Translates the text using the Translator.
+     *
+     * @param text The text to be translated.
+     * @return The translated text.
+     */
+    private suspend fun translateText(text: String): String {
+        return Translator.getTranslator(text).firstOrNull() ?: text
     }
 
-}
-
-
-
-fun OverviewViewModel.createCallBack(fetchValue: () -> String): Flow<String> = callbackFlow {
-    val options = TranslatorOptions.Builder()
-        .setSourceLanguage(TranslateLanguage.ENGLISH)
-        .setTargetLanguage(TranslateLanguage.GERMAN)
-        .build()
-
-    val englishGermanTranslator = Translation.getClient(options)
-
-    val conditions = DownloadConditions.Builder()
-        .requireWifi()
-        .build()
-
-    englishGermanTranslator.downloadModelIfNeeded(conditions)
-        .addOnSuccessListener {
-            // Model downloaded successfully.
+    /**
+     * Translates a list of ingredients.
+     *
+     * @param ingredientsList The list of ingredients to translate.
+     * @return The list of translated ingredients.
+     */
+    private suspend fun translateIngredients(ingredientsList: List<String>): List<String> {
+        return ingredientsList.map { ingredient ->
+            translateText(ingredient)
         }
-        .addOnFailureListener { exception ->
-            // Error handling.
-            close(exception) // Schließt den Flow mit einem Fehler.
-        }
+    }
 
-    englishGermanTranslator.translate(fetchValue())
-        .addOnSuccessListener { translatedText ->
-            trySend(translatedText) // Sendet das übersetzte Ergebnis.
-        }
-        .addOnFailureListener { exception ->
-            // Error handling.
-            close(exception) // Schließt den Flow mit einem Fehler.
-        }
+    /**
+     * Translates beer data including tagline, description, brewers tips, and ingredients.
+     *
+     * @param beer The beer data to translate.
+     * @return The beer data with translated fields.
+     */
+    private suspend fun translateBeerData(beer: Beer): Beer = withContext(viewModelScope.coroutineContext) {
+        val translatedTagline = async { translateText(beer.tagline) }
+        val translatedDescription = async { translateText(beer.description) }
+        val translatedBrewerTips = async { translateText(beer.brewersTips) }
+        val ingredientsList: List<String> = malts + hops
+        val translatedIngredients = async { translateIngredients(ingredientsList) }
 
-    awaitClose {
-        englishGermanTranslator.close() // Ressourcen freigeben.
+        beer.copy(
+            tagline = translatedTagline.await(),
+            description = translatedDescription.await(),
+            brewersTips = translatedBrewerTips.await(),
+            combinedMalts = translatedIngredients.await()
+        )
     }
 
 }
-
 

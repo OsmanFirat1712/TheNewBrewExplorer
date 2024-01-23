@@ -16,6 +16,7 @@ data class Beer(
     val ingredients: Ingredients,
     @SerializedName ("boil_volume")
     val boilVolume: Volume,
+    val combinedMalts:List<String>?  = null
     ):Serializable
 
 

@@ -25,7 +25,7 @@ fun ContentErrorScreen(
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(imageVector = Icons.Filled.Warning, contentDescription = null)
         Text(

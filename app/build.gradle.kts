@@ -61,7 +61,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
-
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
 
     // Navigation
@@ -88,8 +87,10 @@ dependencies {
     // Image loading
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    //Tranlasting
     implementation ("com.google.mlkit:translate:17.0.2")
 
+    // Compose Form
     implementation ("com.github.benjamin-luescher:compose-form:0.2.8")
 
 

@@ -18,6 +18,5 @@ internal val uiModule = module {
         MainForm()
     }
     viewModel { OverviewViewModel(dataSource = get()) }
-    viewModel { DetailScreenViewModel(forum = get()) }
-
+    viewModel { DetailScreenViewModel(forum = get(), savedStateHandle = get())}
 }
