@@ -129,6 +129,7 @@ fun ContentList(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun ExpandableCardd(
@@ -151,10 +152,6 @@ fun ExpandableCardd(
 
     Card(
         modifier = Modifier
-            .clickable(!expandedState, onClick = {
-                expandedState = !expandedState
-            }
-            )
             .animateContentSize(
                 animationSpec = tween(
                     durationMillis = 300,
@@ -163,6 +160,12 @@ fun ExpandableCardd(
             )
             .padding(5.dp),
         shape = RoundedCornerShape(10.dp),
+        onClick = {
+            when(!expandedState){
+                true ->  expandedState = !expandedState
+                false -> {}
+            }
+        }
     ) {
         Column(
             modifier = Modifier
